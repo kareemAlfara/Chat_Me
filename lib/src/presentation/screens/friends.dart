@@ -1,0 +1,60 @@
+import 'package:chat_me/src/presentation/cubits/logincubit/login_cubit.dart';
+import 'package:chat_me/src/presentation/screens/loginScreen.dart';
+import 'package:chat_me/src/presentation/widgets/friendsWidegt.dart';
+import 'package:chat_me/src/services/components.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+// Column(
+//         crossAxisAlignment: CrossAxisAlignment.center,
+//         mainAxisAlignment: MainAxisAlignment.center,
+//         children: [Lottie.asset("assets/images/ChatAnimation.json")],
+//       )
+        
+class FriendsScreen extends StatelessWidget {
+  const FriendsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<LoginCubit, LoginState>(
+      builder: (context, state) {
+        var usersList = LoginCubit.get(context).userslist;
+        return Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+            title: defulttext(data: "FRIENDS ", fSize: 22),
+            actions: [
+              IconButton(
+                onPressed: () async {
+                  await LoginCubit.get(context).logout(context);
+
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => Loginscreen()),
+                    (route) => false,
+                  );
+                },
+                icon: Icon(Icons.login_outlined, size: 33),
+              ),
+            ],
+          ),
+          body: state is getAllUsersLoadingState
+              ? Center(child: CircularProgressIndicator())
+              : ListView.separated(
+                  physics: BouncingScrollPhysics(),
+                  itemBuilder: (context, index) =>
+                      frindeswidget(model: usersList[index]),
+                  separatorBuilder: (context, index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    child: Container(
+                      height: 1,
+                      width: double.infinity,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  itemCount: usersList.length,
+                ),
+        );
+      },
+    );
+  }
+}

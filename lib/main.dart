@@ -14,7 +14,7 @@ void main(List<String> args) async {
     url: "https://hmyngrmjiqpwqcwegjbi.supabase.co",
     anonKey:
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhteW5ncm1qaXFwd3Fjd2VnamJpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTA5Nzk3OTcsImV4cCI6MjA2NjU1NTc5N30.EntAUdipEreHOsYEpL69h0CNFZhLRW_-VJqb0Gs0DqU",
- authOptions: const FlutterAuthClientOptions(
+ authOptions: const FlutterAuthClientOptions( 
     autoRefreshToken: true,
     
   ),
@@ -24,11 +24,7 @@ void main(List<String> args) async {
   final userId = prefs.getString('user_id');
 
   runApp(
-    BlocProvider(
-      create: (context) => LoginCubit()..getAllUser(),
-      child: MyApp(isLoggedIn: userId != null),
-    
-    ),
+   MyApp(isLoggedIn: userId != null),
   );
 }
 
@@ -40,6 +36,7 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (context) => LoginCubit()..getAllUser()),
+        // BlocProvider(create: (context) => MessagesCubit()),
   
       ],
       child: MaterialApp(

@@ -65,7 +65,7 @@ class chatingWidget extends StatelessWidget {
                       ? Primarycolor
                       : Colors.grey,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15),
+                    topLeft: Radius.circular(15), 
                     topRight: Radius.circular(15),
                     bottomRight: messagemodel.Sender_id == uid
                         ? Radius.circular(15)
@@ -135,30 +135,11 @@ Widget buildMessageContent(BuildContext context) {
         fit: BoxFit.cover,
       ),
     );
-  }
-
-  // --- Fallback file ---
-  else if (fileUrl.isNotEmpty) {
-    return GestureDetector(
-      onTap: () => MessagesCubit.get(context).openFile(fileUrl, context),
-      child: Container(
-        color: Colors.grey[300],
-        padding: EdgeInsets.all(8),
-        child: Row(
-          children: [
-            Icon(Icons.insert_drive_file, color: Colors.blue, size: 30),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                fileUrl.split('/').last,
-                style: TextStyle(color: Colors.black),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  }else{
+    Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: defulttext(data: messageText, fSize: 17),
+  );
   }
 
   // Fallback again if nothing works

@@ -4,6 +4,7 @@ import 'package:chat_me/src/presentation/widgets/audioWidget.dart';
 import 'package:chat_me/src/services/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class chatingWidget extends StatelessWidget {
   const chatingWidget({
@@ -36,16 +37,15 @@ class chatingWidget extends StatelessWidget {
                   ),
                   TextButton(
                     onPressed: () async {
+                      // Delete message - real-time listener will handle UI update
                       await MessagesCubit.get(
                         context,
                       ).deleteMessage(messagemodel.id);
                       FocusScope.of(context).unfocus();
-
-                      // assume `id` is in model
                       Navigator.pop(context);
-                      await MessagesCubit.get(
-                        context,
-                      ).fetchMessages(receiverId: receiverId);
+
+                      // No need to manually call fetchMessages anymore
+                      // The real-time listener will automatically update both users
                     },
                     child: Text("Delete", style: TextStyle(color: Colors.red)),
                   ),
@@ -65,14 +65,14 @@ class chatingWidget extends StatelessWidget {
                       ? Primarycolor
                       : Colors.grey,
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(15), 
-                    topRight: Radius.circular(15),
-                    bottomRight: messagemodel.Sender_id == uid
-                        ? Radius.circular(15)
-                        : Radius.circular(0),
-                    bottomLeft: messagemodel.Sender_id == uid
+                    topLeft:  messagemodel.Sender_id == uid
                         ? Radius.circular(0)
-                        : Radius.circular(15),
+                        : Radius.circular(20),
+                    topRight: messagemodel.Sender_id == uid
+                        ? Radius.circular(20)
+                        : Radius.circular(0),
+                    bottomRight:  Radius.circular(20),
+                    bottomLeft: Radius.circular(20),
                   ),
                 ),
                 child: buildMessageContent(context),
@@ -83,156 +83,194 @@ class chatingWidget extends StatelessWidget {
       },
     );
   }
-Widget buildMessageContent(BuildContext context) {
-  final fileUrl = messagemodel.image_url ?? '';
-  final messageText = messagemodel.message ?? '';
 
-  // If fileUrl is missing AND message has no media => text only
-  if (fileUrl.isEmpty && messageText.isNotEmpty) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: defulttext(data: messageText, fSize: 17),
-    );
-  }
+  Widget buildMessageContent(BuildContext context) {
+    final fileUrl = messagemodel.image_url ?? '';
+    final messageText = messagemodel.message ?? '';
 
-  final uri = Uri.tryParse(fileUrl);
-  final fileExtension = uri?.path.split('.').last.toLowerCase() ?? '';
+    // If fileUrl is missing AND message has no media => text only
+    if (fileUrl.isEmpty && messageText.isNotEmpty) {
+      return Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: defulttext(data: messageText, fSize: 17),
+      );
+    }
 
-  // --- Audio ---
-  if (fileExtension == 'mp3' || fileUrl.contains('.mp3')) {
-    return AudioMessageWidget(
-      audioUrl: fileUrl,
-      isSentByMe: messagemodel.Sender_id == uid,
-    );
-  }
-
-  // --- PDF ---
-  else if (fileExtension == 'pdf') {
-    final fileName = fileUrl.split('uploads/').last;
-    return GestureDetector(
-      onTap: () => MessagesCubit.get(context).openFile(fileUrl, context),
-      child: Container(
-        padding: EdgeInsets.all(8),
-        child: Row(
+    final uri = Uri.tryParse(fileUrl);
+    final fileExtension = uri?.path.split('.').last.toLowerCase() ?? '';
+    final isLocation = fileUrl.startsWith("https://www.google.com/maps");
+    // --- Audio ---
+    if (fileExtension == 'mp3' || fileUrl.contains('.mp3')) {
+      return AudioMessageWidget(
+        audioUrl: fileUrl,
+        isSentByMe: messagemodel.Sender_id == uid,
+      );
+    } else if (isLocation) {
+      return GestureDetector(
+        onTap: () async {
+        await  MessagesCubit.get(context).openFile(fileUrl, context);
+          Uri url = Uri.parse(fileUrl);
+          if (await canLaunchUrl(url)) {
+            await launchUrl(url, mode: LaunchMode.externalApplication);
+          }
+        },
+        child: Column(
           children: [
-            Icon(Icons.picture_as_pdf, color: Colors.red, size: 30),
-            SizedBox(width: 10),
-            Text('$fileName'),
+            
+             Image.asset(
+          "assets/images/location_image.jpg",
+          width: 180,
+          height: 100,
+          fit: BoxFit.cover,
+        ),
+            Text(
+              "📍 View current Loc",
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 17,
+                // decoration: TextDecoration.underline,
+              ),
+            ),
           ],
         ),
-      ),
+      );
+    } else if (fileExtension == 'mp4' || fileUrl.contains('.mp4')) {
+      return AudioMessageWidget(
+        audioUrl: fileUrl,
+        isSentByMe: messagemodel.Sender_id == uid,
+      );
+    }
+    // --- PDF ---
+    else if (fileExtension == 'pdf') {
+      final fileName = fileUrl.split('uploads/').last;
+      return GestureDetector(
+        onTap: () => MessagesCubit.get(context).openFile(fileUrl, context),
+        child: Container(
+          padding: EdgeInsets.all(8),
+          child: Row(
+            children: [
+              Icon(Icons.picture_as_pdf, color: Colors.red, size: 30),
+              SizedBox(width: 10),
+              Text('$fileName'),
+            ],
+          ),
+        ),
+      );
+    }
+    // --- Image ---
+    else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(fileExtension)) {
+      return GestureDetector(
+        onTap: () => MessagesCubit.get(context).openFile(fileUrl, context),
+        child: Image.network(
+          fileUrl,
+          width: 200,
+          height: 130,
+          fit: BoxFit.cover,
+        ),
+      );
+    } else {
+      Padding(
+        padding: const EdgeInsets.only(top: 8.0,left: 8,right: 0),
+        child: defulttext(data: messageText, fSize: 17),
+      );
+    }
+
+    // Fallback again if nothing works
+    return Stack(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: defulttext(data: messageText, fSize: 17),
+        ),
+      ],
+      
     );
   }
 
-  // --- Image ---
-  else if (['jpg', 'jpeg', 'png', 'gif', 'webp'].contains(fileExtension)) {
-    return GestureDetector(
-      onTap: () => MessagesCubit.get(context).openFile(fileUrl, context),
-      child: Image.network(
-        fileUrl,
-        width: 200,
-        height: 130,
-        fit: BoxFit.cover,
-      ),
-    );
-  }else{
-    Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: defulttext(data: messageText, fSize: 17),
-  );
-  }
+  //   Widget buildMessageContent(BuildContext context) {
+  //     final fileUrl = messagemodel.image_url;
+  //     final url = messagemodel.image_url;
+  //     String fileName = url.split('uploads/').last;
+  //     if (fileUrl != null && fileUrl.isNotEmpty) {
+  //       final fileExtension = fileUrl.split('.').last.toLowerCase();
 
-  // Fallback again if nothing works
-  return Padding(
-    padding: const EdgeInsets.all(8.0),
-    child: defulttext(data: messageText, fSize: 17),
-  );
-}
+  //       if (fileExtension == 'pdf') {
+  //         // 📄 PDF Section
+  //         return GestureDetector(
+  //           onTap: () async {
+  //             // final url = messagemodel.image_url;
 
-//   Widget buildMessageContent(BuildContext context) {
-//     final fileUrl = messagemodel.image_url;
-//     final url = messagemodel.image_url;
-//     String fileName = url.split('uploads/').last;
-//     if (fileUrl != null && fileUrl.isNotEmpty) {
-//       final fileExtension = fileUrl.split('.').last.toLowerCase();
+  //             await MessagesCubit.get(context).openFile(url, context);
+  //           },
+  //           child: Container(
+  //             // color: Colors.grey[200],
+  //             padding: EdgeInsets.all(8),
+  //             child: Row(
+  //               children: [
+  //                 Icon(Icons.picture_as_pdf, color: Colors.red, size: 30),
+  //                 SizedBox(width: 10),
+  //                 Text('$fileName'),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       } else if ([
+  //         'jpg',
+  //         'jpeg',
+  //         'png',
+  //         'gif',
+  //         'webp',
+  //       ].contains(fileExtension)) {
+  //         // 🖼️ Image Section
+  //         return GestureDetector(
+  //           onTap: () async {
+  //             final url = messagemodel.image_url;
 
-//       if (fileExtension == 'pdf') {
-//         // 📄 PDF Section
-//         return GestureDetector(
-//           onTap: () async {
-//             // final url = messagemodel.image_url;
+  //             await MessagesCubit.get(context).openFile(url, context);
+  //           },
+  //           child: Image.network(
+  //             fileUrl,
+  //             width: 200,
+  //             height: 130,
+  //             fit: BoxFit.cover,
+  //           ),
+  //         );
+  //       }  else if (['mp3'].contains(fileExtension)) {
+  //   return  AudioMessageWidget(
+  //     audioUrl: fileUrl,
+  //     isSentByMe: messagemodel.Sender_id == uid,
+  //   );
+  // }else {
+  //         // 📁 Other File Types Section
+  //         return GestureDetector(
+  //           onTap: () async {
+  //             await MessagesCubit.get(context).openFile(fileUrl, context);
+  //           },
+  //           child: Container(
+  //             color: Colors.grey[300],
+  //             padding: EdgeInsets.all(8),
+  //             child: Row(
+  //               children: [
+  //                 Icon(Icons.insert_drive_file, color: Colors.blue, size: 30),
+  //                 SizedBox(width: 8),
+  //                 Expanded(
+  //                   child: Text(
+  //                     fileUrl.split('/').last, // Show only file name
+  //                     style: TextStyle(color: Colors.black),
+  //                     overflow: TextOverflow.ellipsis,
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //         );
+  //       }
+  //     }
 
-//             await MessagesCubit.get(context).openFile(url, context);
-//           },
-//           child: Container(
-//             // color: Colors.grey[200],
-//             padding: EdgeInsets.all(8),
-//             child: Row(
-//               children: [
-//                 Icon(Icons.picture_as_pdf, color: Colors.red, size: 30),
-//                 SizedBox(width: 10),
-//                 Text('$fileName'),
-//               ],
-//             ),
-//           ),
-//         );
-//       } else if ([
-//         'jpg',
-//         'jpeg',
-//         'png',
-//         'gif',
-//         'webp',
-//       ].contains(fileExtension)) {
-//         // 🖼️ Image Section
-//         return GestureDetector(
-//           onTap: () async {
-//             final url = messagemodel.image_url;
-
-//             await MessagesCubit.get(context).openFile(url, context);
-//           },
-//           child: Image.network(
-//             fileUrl,
-//             width: 200,
-//             height: 130,
-//             fit: BoxFit.cover,
-//           ),
-//         );
-//       }  else if (['mp3'].contains(fileExtension)) {
-//   return  AudioMessageWidget(
-//     audioUrl: fileUrl,
-//     isSentByMe: messagemodel.Sender_id == uid,
-//   );
-// }else {
-//         // 📁 Other File Types Section
-//         return GestureDetector(
-//           onTap: () async {
-//             await MessagesCubit.get(context).openFile(fileUrl, context);
-//           },
-//           child: Container(
-//             color: Colors.grey[300],
-//             padding: EdgeInsets.all(8),
-//             child: Row(
-//               children: [
-//                 Icon(Icons.insert_drive_file, color: Colors.blue, size: 30),
-//                 SizedBox(width: 8),
-//                 Expanded(
-//                   child: Text(
-//                     fileUrl.split('/').last, // Show only file name
-//                     style: TextStyle(color: Colors.black),
-//                     overflow: TextOverflow.ellipsis,
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         );
-//       }
-//     }
-
-//     // 📝 Fallback to text message
-//     return Padding(
-//       padding: const EdgeInsets.all(8.0),
-//       child: defulttext(data: messagemodel.message, fSize: 17),
-//     );
-//   }
+  //     // 📝 Fallback to text message
+  //     return Padding(
+  //       padding: const EdgeInsets.all(8.0),
+  //       child: defulttext(data: messagemodel.message, fSize: 17),
+  //     );
+  //   }
 }

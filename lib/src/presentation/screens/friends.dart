@@ -4,6 +4,7 @@ import 'package:chat_me/src/presentation/widgets/friendsWidegt.dart';
 import 'package:chat_me/src/services/components.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lottie/lottie.dart';
 // Column(
 //         crossAxisAlignment: CrossAxisAlignment.center,
 //         mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +39,13 @@ class FriendsScreen extends StatelessWidget {
             ],
           ),
           body: state is getAllUsersLoadingState
-              ? Center(child: CircularProgressIndicator())
+              ? Center(child: 
+              Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [Lottie.asset("assets/images/ChatAnimation.json")],
+      )
+              )
               : ListView.separated(
                   physics: BouncingScrollPhysics(),
                   itemBuilder: (context, index) =>

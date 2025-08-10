@@ -30,7 +30,7 @@ Widget defulttext({
   FontWeight? fw,
 }) => Text(
   textDirection: textDirection,
-  maxLines: 1,
+  maxLines: 4,
   data,
   style: TextStyle(
     fontSize: fSize,
@@ -192,9 +192,34 @@ Widget bottomSheet(context, {required String receiverId}) {
                   },
                 ),
                 SizedBox(width: 40),
-                iconCreation(Icons.location_pin, Colors.teal, "Location"),
+                iconCreation(
+                  Icons.location_pin,
+                  Colors.teal,
+                  "Location",
+                  onTap: () async {
+                    Navigator.pop(context);
+              await      MessagesCubit.get(
+                      context,
+                    ).sendLocationMessage(receiver_id: receiverId);
+                  },
+                ),
                 SizedBox(width: 40),
-                iconCreation(Icons.person, Colors.blue, "Contact"),
+                iconCreation(Icons.person, Colors.blue, "Contact",
+                  onTap: () async {
+                    FilePickerResult? result = await FilePicker.platform
+                        .pickFiles();
+
+                    if (result != null && result.files.single.path != null) {
+                      File file = File(result.files.single.path!);
+
+                      Navigator.pop(context);
+                      await MessagesCubit.get(context).sendAudioMessage(
+                        receiverId: receiverId,
+                        audioFile: file,
+                      );
+                    }
+                    ;
+                  },),
               ],
             ),
           ],

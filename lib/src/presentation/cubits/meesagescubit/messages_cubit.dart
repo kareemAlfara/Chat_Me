@@ -5,6 +5,7 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:chat_me/src/domain/usecases/usecase.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:chat_me/src/data/models/messageModel.dart';
 import 'package:chat_me/src/services/components.dart';
@@ -45,6 +46,7 @@ class MessagesCubit extends Cubit<MessagesState> {
           .from("messages")
           .insert({
             "Sender_Id": uid,
+
             // "message": message,
             'message': message ?? '',
             if (imageUrl != null && imageUrl.isNotEmpty) 'image_url': imageUrl,
@@ -54,6 +56,8 @@ class MessagesCubit extends Cubit<MessagesState> {
           .select()
           .single();
       messagemodel = Messagemodel.fromJson(response);
+          log(messagemodel!.created_at);
+            print("1111111111111111111111111111");
       emit(MessagesInsertsuccess());
     } on Exception catch (e) {
       // TODO
@@ -79,6 +83,7 @@ class MessagesCubit extends Cubit<MessagesState> {
             this.data.add(
               Messagemodel.fromJson(row),
             ); // Ensure fromJson is implemented
+        
           }
           if (!isClosed) {
             emit(FetchmessagesSucess());
@@ -220,18 +225,85 @@ class MessagesCubit extends Cubit<MessagesState> {
     }
   }
 
+  // Alternative approach: Listen to specific database events
+  Future<void> listenToMessageChanges({required String receiverId}) async {
+    String chatId = generateChatId(uid!, receiverId);
+
+    // Listen to all changes (INSERT, UPDATE, DELETE)
+    Supabase.instance.client
+        .channel('messages_channel')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'messages',
+          filter: PostgresChangeFilter(
+            type: PostgresChangeFilterType.eq,
+            column: 'chat_between',
+            value: chatId,
+          ),
+          callback: (payload) {
+            print('Database change detected: ${payload.eventType}');
+
+            // Refresh messages when any change occurs
+            _refreshMessages(receiverId);
+          },
+        )
+        .subscribe();
+  }
+
+  // Helper method to refresh messages
+  Future<void> _refreshMessages(String receiverId) async {
+    String chatId = generateChatId(uid!, receiverId);
+
+    try {
+      final response = await Supabase.instance.client
+          .from('messages')
+          .select()
+          .eq('chat_between', chatId)
+          .order('created_at');
+
+      data.clear();
+      for (var row in response) {
+        data.add(Messagemodel.fromJson(row));
+      }
+
+      if (!isClosed) {
+        emit(FetchmessagesSucess());
+      }
+    } catch (e) {
+      print('Error refreshing messages: $e');
+    }
+  }
+
   Future<void> deleteMessage(int messageId) async {
     try {
       await Supabase.instance.client
           .from('messages')
           .delete()
-          .eq('id', messageId); // or use your actual primary key
+          .eq('id', messageId);
+
+      // Remove the message from local data immediately for better UX
+      data.removeWhere((message) => message.id == messageId);
+
       emit(Messagesuccess());
     } catch (e) {
       emit(Messagefailure(error: e.toString()));
       print("Failed to delete message: $e");
     }
   }
+
+  // Future<void> deleteMessage(int messageId) async {
+  //   try {
+  //     await Supabase.instance.client
+  //         .from('messages')
+  //         .delete()
+  //         .eq('id', messageId); // or use your actual primary key
+  //     emit(Messagesuccess());
+  //   } catch (e) {
+  //     emit(Messagefailure(error: e.toString()));
+  //     print("Failed to delete message: $e");
+  //   }
+  // }
   Future<void> sendAudioMessage({
     required File audioFile,
     required String receiverId,
@@ -266,6 +338,50 @@ class MessagesCubit extends Cubit<MessagesState> {
       print('✅ Audio message sent: $publicUrl');
     } catch (e) {
       print('❌ Failed to send audio: $e');
+    }
+  }
+
+  Future<Position> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location service is enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      throw Exception('Location services are disabled.');
+    }
+
+    // Check permission
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permission denied');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      throw Exception('Location permission permanently denied');
+    }
+
+    return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+  }
+
+  Future<void> sendLocationMessage({required String receiver_id}) async {
+    try {
+      Position position = await _getCurrentLocation();
+      String mapsUrl =
+          "https://www.google.com/maps?q=${position.latitude},${position.longitude}";
+
+      await MessagesCubit().insterMessage(
+        receiver_id: receiver_id,
+        message: '',
+        imageUrl: mapsUrl, // Send as text
+      );
+    } catch (e) {
+      print("Error getting location: $e");
     }
   }
 }

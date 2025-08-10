@@ -13,7 +13,7 @@ class frindeswidget extends StatelessWidget {
       uid = Supabase.instance.client.auth.currentUser!.id;
     return model.user_id==uid?SizedBox.shrink():GestureDetector(
       onTap: () {
-        navigat(context, widget: ChatingScreen(receiverId:model.user_id , receiverName:model.name , receiverImage: model.image,));
+        navigat(context, widget: Chatingscreen(model: model, ));
           print("uid $uid");
           print("model.user_id ${model.user_id}");
 

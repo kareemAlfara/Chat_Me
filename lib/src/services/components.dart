@@ -28,9 +28,10 @@ Widget defulttext({
   double? fSize,
   Color? color = Colors.white,
   FontWeight? fw,
+  int? maxLines=4,
 }) => Text(
   textDirection: textDirection,
-  maxLines: 4,
+  maxLines: maxLines,
   data,
   style: TextStyle(
     fontSize: fSize,

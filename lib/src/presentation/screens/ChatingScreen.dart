@@ -96,7 +96,7 @@ class Chatingscreen extends StatelessWidget {
                         itemCount: cubit.data.length,
                         itemBuilder: (context, index) => chatingWidget(
                           messagemodel: cubit.data[index],
-                          receiverId: model.user_id,
+                          receiverId: model.user_id, index: index,
                         ),
                       ),
                     ),

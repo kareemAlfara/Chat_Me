@@ -1,5 +1,6 @@
 import 'package:chat_me/src/presentation/cubits/logincubit/login_cubit.dart';
 import 'package:chat_me/src/presentation/cubits/meesagescubit/messages_cubit.dart';
+import 'package:chat_me/src/presentation/screens/chatApp.dart';
 import 'package:chat_me/src/presentation/screens/friends.dart';
 import 'package:chat_me/src/presentation/screens/loginScreen.dart';
 import 'package:flutter/material.dart';
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         home:
             isLoggedIn
-                ? FriendsScreen()
+                ? WelcomeScreen()
                 : Loginscreen(),
       ),
     );

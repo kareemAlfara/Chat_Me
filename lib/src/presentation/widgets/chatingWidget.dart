@@ -28,7 +28,7 @@ class chatingWidget extends StatelessWidget {
         bool showDate = false;
         if (index == 0) {
           // Always show date for first message
-          showDate = true;
+          showDate = false;
         } else {
           // Compare with previous message date
           DateTime prevParsedDate = DateTime.parse(

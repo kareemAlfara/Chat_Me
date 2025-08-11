@@ -3,6 +3,7 @@ import 'package:chat_me/src/presentation/cubits/meesagescubit/messages_cubit.dar
 import 'package:chat_me/src/presentation/screens/chatApp.dart';
 import 'package:chat_me/src/presentation/screens/friends.dart';
 import 'package:chat_me/src/presentation/screens/loginScreen.dart';
+import 'package:chat_me/src/presentation/screens/onboading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,7 +47,7 @@ class MyApp extends StatelessWidget {
         home:
             isLoggedIn
                 ? WelcomeScreen()
-                : Loginscreen(),
+                : OnboardingScreen(),
       ),
     );
   }

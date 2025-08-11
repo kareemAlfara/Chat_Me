@@ -30,99 +30,113 @@ class Loginscreen extends StatelessWidget {
       },
       builder: (context, state) {
         var cubit = LoginCubit.get(context);
+          final List<List<Color>> bgColors = [
+            
+    [Colors.blue.shade700, Colors.purple.shade400],
+    [Colors.pink.shade500, Colors.orange.shade300],
+    [Colors.green.shade500, Colors.blue.shade300],
+  ];
         return Scaffold(
-          backgroundColor: Primarycolor,
+          backgroundColor: Colors.purple.shade400,
           appBar: AppBar(
-            backgroundColor: Primarycolor,
+            backgroundColor: Colors.blue.shade700,
             centerTitle: true,
             title: defulttext(data: "Chat App"),
           ),
-          body: Form(
-            key: cubit.formkey,
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 33),
-
-                  defulttext(data: "Login", fSize: 26),
-                  SizedBox(height: 22),
-                  defulitTextFormField(
-                    
-                    controller: cubit.emailcontroller,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "please inter ther Email";
-                      }
-                      return null;
-                    },
-                    title: "Email",
-                    textInputAction: TextInputAction.next,
-                  ),
-                  SizedBox(height: 22),
-                  defulitTextFormField(
-                    isobscure: cubit.isscure,
-                    controller: cubit.passcontroller,
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return "please inter ther password";
-                      }
-                      return null;
-                    },
-                    suffixIcon: IconButton(
-                      onPressed: () {
-                        cubit.PassowrdMethod();
-                      },
-
-                      icon:
-                          cubit.isscure
-                              ? Icon(Icons.visibility, color: Colors.white)
-                              : Icon(Icons.visibility_off, color: Colors.white),
-                    ),
-                    title: "Password",
-                    textInputAction: TextInputAction.done,
-                  ),
-                  SizedBox(height: 33),
-
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                      ),
-                      onPressed: () {
-                        if (cubit.formkey.currentState!.validate()) {
-                          cubit.getUser(
-                            Email: cubit.emailcontroller.text,
-                            password: cubit.passcontroller.text,
-                          );
+          body: Container(
+           decoration: BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: bgColors[0],
+    ),),
+          child: Form(
+              key: cubit.formkey,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 33),
+            
+                    defulttext(data: "Login", fSize: 26),
+                    SizedBox(height: 22),
+                    defulitTextFormField(
+                      
+                      controller: cubit.emailcontroller,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "please inter ther Email";
                         }
+                        return null;
                       },
-                      child:
-                          state is getUserloadingState
-                              ? Center(child: CircularProgressIndicator())
-                              : defulttext(data: "  Login  ", fSize: 18),
+                      title: "Email",
+                      textInputAction: TextInputAction.next,
                     ),
-                  ),
-                  SizedBox(height: 33),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      defulttext(data: "Donot Have Any Accounts "),
-                      TextButton(
+                    SizedBox(height: 22),
+                    defulitTextFormField(
+                      isobscure: cubit.isscure,
+                      controller: cubit.passcontroller,
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return "please inter ther password";
+                        }
+                        return null;
+                      },
+                      suffixIcon: IconButton(
                         onPressed: () {
-                          navigat(context, widget: RegisterScreen());
+                          cubit.PassowrdMethod();
                         },
-                        child: defulttext(
-                          data: "Sign up",
-                          color: Colors.blue,
-                          fSize: 17,
-                        ),
+            
+                        icon:
+                            cubit.isscure
+                                ? Icon(Icons.visibility, color: Colors.white)
+                                : Icon(Icons.visibility_off, color: Colors.white),
                       ),
-                    ],
-                  ),
-                ],
+                      title: "Password",
+                      textInputAction: TextInputAction.done,
+                    ),
+                    SizedBox(height: 33),
+            
+                    Center(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                        ),
+                        onPressed: () {
+                          if (cubit.formkey.currentState!.validate()) {
+                            cubit.getUser(
+                              Email: cubit.emailcontroller.text,
+                              password: cubit.passcontroller.text,
+                            );
+                          }
+                        },
+                        child:
+                            state is getUserloadingState
+                                ? Center(child: CircularProgressIndicator())
+                                : defulttext(data: "  Login  ", fSize: 18),
+                      ),
+                    ),
+                    SizedBox(height: 33),
+            
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        defulttext(data: "Donot Have Any Accounts "),
+                        TextButton(
+                          onPressed: () {
+                            navigat(context, widget: RegisterScreen());
+                          },
+                          child: defulttext(
+                            data: "Sign up",
+                            color:  Colors.lightBlueAccent,
+                            fSize: 17,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

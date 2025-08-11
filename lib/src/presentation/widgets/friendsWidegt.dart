@@ -19,7 +19,7 @@ class frindeswidget extends StatelessWidget {
 
       },
       child: Container(
-        color:  Theme.of(context).scaffoldBackgroundColor,
+        // color:  Theme.of(context).scaffoldBackgroundColor,
         child: Padding(
           padding: const EdgeInsets.all( 8.0),
           child: Row(

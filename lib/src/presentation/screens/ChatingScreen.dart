@@ -44,8 +44,8 @@ class Chatingscreen extends StatelessWidget {
                 ],
               ),
               actions: [
-                IconButton(icon: Icon(Icons.videocam), onPressed: () {}),
-                IconButton(icon: Icon(Icons.call), onPressed: () {}),
+                // IconButton(icon: Icon(Icons.videocam), onPressed: () {}),
+                // IconButton(icon: Icon(Icons.call), onPressed: () {}),
                 PopupMenuButton<String>(
                   padding: EdgeInsets.all(0),
                   onSelected: (value) {

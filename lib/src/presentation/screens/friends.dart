@@ -21,6 +21,7 @@ class FriendsScreen extends StatelessWidget {
         var usersList = LoginCubit.get(context).userslist;
         return Scaffold(
           appBar: AppBar(
+            elevation: 0,
             centerTitle: true,
             title: defulttext(data: "FRIENDS ", fSize: 22),
             actions: [
@@ -46,20 +47,32 @@ class FriendsScreen extends StatelessWidget {
         children: [Lottie.asset("assets/images/ChatAnimation.json")],
       )
               )
-              : ListView.separated(
-                  physics: BouncingScrollPhysics(),
-                  itemBuilder: (context, index) =>
-                      frindeswidget(model: usersList[index]),
-                  separatorBuilder: (context, index) => Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Container(
-                      height: 1,
-                      width: double.infinity,
-                      color: Colors.grey,
+              :  Container(
+           decoration: BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors:[
+              Colors.black,
+              Color(0xFF1a1a2e),
+              Color(0xFF16213e),
+              Color(0xFF0f3460),
+            ],
+    ),),child:  ListView.separated(
+                    physics: BouncingScrollPhysics(),
+                    itemBuilder: (context, index) =>
+                        frindeswidget(model: usersList[index]),
+                    separatorBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Container(
+                        height: 1,
+                        width: double.infinity,
+                        color: Colors.grey,
+                      ),
                     ),
+                    itemCount: usersList.length,
                   ),
-                  itemCount: usersList.length,
-                ),
+              ),
         );
       },
     );

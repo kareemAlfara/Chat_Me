@@ -1,6 +1,6 @@
 import 'package:chat_me/src/presentation/cubits/logincubit/login_cubit.dart';
 import 'package:chat_me/src/presentation/cubits/meesagescubit/messages_cubit.dart';
-import 'package:chat_me/src/presentation/screens/chatApp.dart';
+import 'package:chat_me/src/presentation/screens/wellcome_chatApp.dart';
 import 'package:chat_me/src/presentation/screens/friends.dart';
 import 'package:chat_me/src/presentation/screens/loginScreen.dart';
 import 'package:chat_me/src/presentation/screens/onboading.dart';

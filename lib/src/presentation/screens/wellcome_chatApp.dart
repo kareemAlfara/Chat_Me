@@ -73,10 +73,10 @@ class WelcomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const Text(
-                      'Enjoy the new experience of\nchatting with global friends',
+                      'Enjoy the new experience of\nchatting with global friends .',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                         height: 1.3,

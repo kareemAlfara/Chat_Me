@@ -153,9 +153,9 @@ Found a bug or have a feature idea? We'd love to hear from you!
 - **[Image Picker](https://pub.dev/packages/image_picker)** - Image and camera access
 - **[Audio Recorder](https://pub.dev/packages/audio_recorder)** - Voice message recording
 
-<!-- ## 📄 License
+## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details. -->
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 👨‍💻 Author
 

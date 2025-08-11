@@ -2,7 +2,7 @@
 # 💬 Chat Me
 
 <p align="center">
-  <img src="assets/logo.png" alt="Chat Me Logo" width="120" height="120">
+  <img src="assets/images/3.png" alt="Chat Me Logo" width="120" height="120">
 </p>
 
 <p align="center">

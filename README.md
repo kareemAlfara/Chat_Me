@@ -154,7 +154,7 @@ Found a bug or have a feature idea? We'd love to hear from you!
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](https://github.com/kareemAlfara/Chat_Me/blob/main/LICENSE.) file for details.
+This project is licensed under the MIT License - see the [LICENSE]() file for details.
 
 ## 👨‍💻 Author
 
